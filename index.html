@@ -98,7 +98,7 @@
 
     <script>
         // ⚠️ لینک Apps Script خودکشی را اینجا قرار دهید ⚠️
-        const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyRIRbQ0xtQwshftVOEdY49gzoPL1oXsJsCD39in9P7A6I2JrAwDFaqpVUjDu11gKgD/exec";
 
         // ۱۹ سوال استاندارد BSSI (هر سوال ۰ تا ۲)
         const questions = [
@@ -250,7 +250,7 @@
         }
 
         function sendDataToGoogleSheet(score) {
-            if (GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_SCRIPT_URL_HERE" || !GOOGLE_SCRIPT_URL) return;
+            if (GOOGLE_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbyRIRbQ0xtQwshftVOEdY49gzoPL1oXsJsCD39in9P7A6I2JrAwDFaqpVUjDu11gKgD/exec" || !GOOGLE_SCRIPT_URL) return;
             const form = document.createElement('form');
             form.method = 'POST'; form.action = GOOGLE_SCRIPT_URL; form.target = 'hidden_iframe';
             const scoreInput = document.createElement('input');
