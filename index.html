@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>مقیاس افکار خودکشی بک (BSSI)</title>
+    <style>
+        @font-face { font-family: 'Vazirmatn'; src: url('./static/mycustomfonts/Vazirmatn-Regular.woff2') format('woff2'); font-weight: 400; font-display: swap; }
+        @font-face { font-family: 'Vazirmatn'; src: url('./static/mycustomfonts/Vazirmatn-Bold.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+        :root { --primary: #007bff; --success: #28a745; --danger: #dc3545; --warning: #ffc107; --bg: #eef2f7; --card: #fff; --text: #2c3e50; --muted: #6c757d; --border: #dee2e6; --shadow: 0 8px 24px rgba(149,157,165,0.2); --trans: all 0.3s ease; }
+        * { box-sizing: border-box; font-family: 'Vazirmatn', sans-serif; margin: 0; padding: 0; }
+        body { background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { width: 100%; max-width: 650px; background: var(--card); padding: 35px; border-radius: 20px; box-shadow: var(--shadow); display: none; }
+        .container.active { display: block; animation: slideUp 0.5s ease forwards; }
+        h1 { font-size: 1.5rem; color: var(--primary); text-align: center; margin-bottom: 10px; }
+        h3 { font-size: 0.95rem; color: var(--muted); text-align: center; margin-bottom: 25px; line-height: 1.6; }
+        .btn { display: inline-flex; justify-content: center; align-items: center; padding: 14px 24px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: var(--trans); color: white; width: 100%; }
+        .btn:active { transform: scale(0.97); }
+        .btn-primary { background: var(--success); box-shadow: 0 4px 15px rgba(40,167,69,0.3); }
+        .btn-primary:hover { background: #218838; }
+        .btn-nav { background: #f1f3f5; color: var(--text); border: 1px solid var(--border); width: 48%; font-size: 1rem; }
+        .btn-nav:disabled { opacity: 0.5; cursor: not-allowed; background: #e9ecef; color: #adb5bd; }
+        .btn-nav:not(:disabled):hover { background: #e2e6ea; }
+        .progress-wrapper { margin-bottom: 25px; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--muted); margin-bottom: 8px; font-weight: 700; }
+        .progress-track { width: 100%; height: 10px; background: #e9ecef; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--primary); border-radius: 10px; transition: width 0.4s ease; width: 0%; }
+        .question-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 25px; line-height: 1.6; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-card { display: flex; align-items: center; padding: 16px 20px; background: #fff; border: 2px solid var(--border); border-radius: 14px; cursor: pointer; transition: var(--trans); }
+        .option-card:hover { border-color: #b3d7ff; background: #f0f8ff; }
+        .option-card.selected { border-color: var(--success); background: #d4edda; }
+        .option-card input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+        .custom-radio { width: 22px; height: 22px; border: 2px solid #adb5bd; border-radius: 50%; margin-left: 15px; position: relative; flex-shrink: 0; }
+        .option-card.selected .custom-radio { border-color: var(--success); }
+        .option-card.selected .custom-radio::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 12px; height: 12px; background: var(--success); border-radius: 50%; }
+        .option-text { font-size: 1.05rem; }
+        .option-card.selected .option-text { font-weight: 700; color: #155724; }
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 30px; gap: 10px; }
+        .alert-info { background: #e7f3fe; color: #0c5460; padding: 15px; border-radius: 12px; text-align: center; font-size: 0.9rem; margin-bottom: 25px; border: 1px solid #bee5eb; line-height: 1.6; }
+        .score-card { text-align: center; background: #fff; padding: 30px 20px; border-radius: 16px; border: 1px solid var(--border); margin-bottom: 25px; }
+        .score-value { font-size: 3rem; font-weight: 700; color: var(--primary); animation: pulse 2s infinite; }
+        .recommendation-card { padding: 25px; border-radius: 16px; border-right: 6px solid; background: #fafafa; margin-bottom: 25px; }
+        .recommendation-card.low { border-color: var(--success); background: #f0fdf4; }
+        .recommendation-card.moderate { border-color: var(--warning); background: #fffbeb; }
+        .recommendation-card.high { border-color: var(--danger); background: #fef2f2; }
+        .rec-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 15px; }
+        .low .rec-title { color: var(--success); }
+        .moderate .rec-title { color: #b7791f; }
+        .high .rec-title { color: var(--danger); }
+        .actions-grid { display: flex; gap: 15px; flex-wrap: wrap; }
+        .actions-grid .btn { flex: 1; min-width: 140px; background: #6c757d; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @media (max-width: 576px) { body { padding: 10px; align-items: flex-start; } .container { padding: 20px; margin-top: 10px; } .nav-buttons { flex-direction: column-reverse; } .btn-nav { width: 100%; } }
+    </style>
+</head>
+<body>
+
+    <div id="start-screen" class="container active">
+        <h1>🧠 مقیاس افکار خودکشی بک (BSSI)</h1>
+        <h3>این آزمون استاندارد شدت افکار خودکشی را در یک هفته گذشته می‌سنجد. اطلاعات شما ناشناس ثبت می‌شود.</h3>
+        <div class="alert-info">⚠️ اگر در حال حاضر به فکر آسیب رساندن به خود هستید، لطفاً فوراً با اورژانس اجتماعی (۱۲۳) یا خط ملی پیشگیری از خودکشی (۱۵۷۰) تماس بگیرید.</div>
+        <button class="btn btn-primary" onclick="startQuiz()">شروع آزمون</button>
+    </div>
+
+    <div id="quiz-screen" class="container">
+        <div class="progress-wrapper">
+            <div class="progress-info">
+                <span id="progress-text">سوال 1 از 19</span>
+                <span id="progress-percent">0%</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" id="progress-bar"></div></div>
+        </div>
+        <div class="question-title" id="question-text">متن سوال...</div>
+        <div class="options-list" id="options-container"></div>
+        <div class="nav-buttons">
+            <button class="btn btn-nav" id="btn-prev" onclick="prevQuestion()">سوال قبل</button>
+            <button class="btn btn-nav" id="btn-next" onclick="nextQuestion()" disabled>سوال بعد</button>
+        </div>
+    </div>
+
+    <div id="result-screen" class="container">
+        <div class="alert-info">ℹ️ این آزمون غربالگری است و جایگزین تشخیص قطعی متخصص نیست.</div>
+        <div class="score-card">
+            <div style="font-size: 1.2rem; font-weight: 700; margin-bottom: 15px;">نمره شدت افکار خودکشی</div>
+            <div class="score-value" id="result-score">0</div>
+            <div style="color: var(--muted); margin-top: 10px;">از 38 امتیاز</div>
+        </div>
+        <div class="recommendation-card" id="recommendation-box">
+            <div class="rec-title" id="rec-title">وضعیت</div>
+            <div id="rec-desc" style="line-height: 1.8;"></div>
+        </div>
+        <div class="actions-grid">
+            <button class="btn" onclick="location.reload()">شروع مجدد</button>
+        </div>
+    </div>
+
+    <script>
+        // ⚠️ لینک Apps Script خودکشی را اینجا قرار دهید ⚠️
+        const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE";
+
+        // ۱۹ سوال استاندارد BSSI (هر سوال ۰ تا ۲)
+        const questions = [
+            { q: "آرزو می‌کنم زنده باشم.", a: ["تمایل متوسط تا شدید به زنده ماندن دارم.", "تمایل ضعیفی به زنده ماندن دارم.", "تمایلی به زنده ماندن ندارم."] },
+            { q: "آرزو می‌کنم بمیرم.", a: ["تمایلی به مرگ ندارم.", "تمایل ضعیفی به مرگ دارم.", "تمایل متوسط تا شدیدی به مرگ دارم."] },
+            { q: "دلایلی برای زندگی دارم (خانواده، آینده، اهداف).", a: ["دلایل زندگی بر دلایل مرگ می‌چربد.", "دلایل زندگی و مرگ تقریباً برابر است.", "دلایل مرگ بر دلایل زندگی می‌چربد."] },
+            { q: "تمایل به اقدام فعالانه برای خودکشی دارم.", a: ["تمایلی به اقدام ندارم.", "تمایل ضعیفی به اقدام دارم.", "تمایل متوسط تا شدیدی به اقدام دارم."] },
+            { q: "به خودکشی به عنوان راه حل مشکلات فکر می‌کنم.", a: ["هرگز به خودکشی به عنوان راه حل فکر نمی‌کنم.", "گاهی به آن فکر می‌کنم.", "اغلب به آن فکر می‌کنم."] },
+            { q: "مدت زمانی که به خودکشی فکر می‌کنم.", a: ["افکار خودکشی بسیار کوتاه و گذرا هستند.", "افکار خودکشی برای مدت‌های کوتاه اما مکرر هستند.", "افکار خودکشی طولانی و مداوم هستند."] },
+            { q: "فراوانی افکار خودکشی.", a: ["به ندرت به خودکشی فکر می‌کنم.", "هفته‌ای چند بار به خودکشی فکر می‌کنم.", "تقریباً هر روز به خودکشی فکر می‌کنم."] },
+            { q: "نگرش من نسبت به افکار خودکشی.", a: ["افکار خودکشی را کاملاً رد می‌کنم.", "نسبت به افکار خودکشی دوگانه هستم.", "افکار خودکشی را می‌پذیرم."] },
+            { q: "کنترل بر افکار خودکشی.", a: ["می‌توانم افکار خودکشی را کنترل کنم.", "تا حدی می‌توانم کنترل کنم.", "هیچ کنترلی بر افکار خودکشی ندارم."] },
+            { q: "دلایلی که مرا از اقدام به خودکشی بازمی‌دارد (مثل خانواده، مذهب، ترس).", a: ["دلایل قوی برای عدم اقدام دارم.", "دلایل ضعیفی برای عدم اقدام دارم.", "هیچ دلیلی برای عدم اقدام ندارم."] },
+            { q: "در صورت داشتن افکار خودکشی، به چه کسی اطلاع می‌دهم؟", a: ["حتماً به کسی اطلاع می‌دهم.", "شاید به کسی اطلاع بدهم.", "به هیچ‌کس اطلاع نمی‌دهم."] },
+            { q: "آمادگی برای اقدام به خودکشی.", a: ["هیچ آمادگی ندارم.", "تا حدی آماده‌ام.", "کاملاً آماده‌ام."] },
+            { q: "برنامه‌ریزی برای خودکشی.", a: ["هیچ برنامه‌ای ندارم.", "برنامه‌های کلی دارم.", "برنامه دقیق و مشخصی دارم."] },
+            { q: "دسترسی به روش‌های خودکشی.", a: ["دسترسی ندارم.", "دسترسی محدودی دارم.", "دسترسی کامل دارم."] },
+            { q: "احساس آمادگی برای اجرای برنامه خودکشی.", a: ["اصلاً آماده نیستم.", "تا حدی آماده‌ام.", "کاملاً آماده‌ام."] },
+            { q: "آیا اقدام به خودکشی کرده‌ام؟", a: ["هرگز اقدام نکرده‌ام.", "یک بار اقدام کرده‌ام.", "بیش از یک بار اقدام کرده‌ام."] },
+            { q: "قصد من از اقدام قبلی چه بود؟", a: ["قصد مردن نداشتم.", "قصد مردن داشتم اما مطمئن نبودم.", "کاملاً قصد مردن داشتم."] },
+            { q: "پشیمانی از اقدام قبلی.", a: ["از اقدام خود پشیمانم.", "احساس دوگانه‌ای دارم.", "از اقدام خود پشیمان نیستم."] },
+            { q: "احتمال اقدام به خودکشی در آینده.", a: ["احتمال بسیار کمی وجود دارد.", "احتمال متوسطی وجود دارد.", "احتمال بسیار زیادی وجود دارد."] }
+        ];
+
+        let answers = new Array(19).fill(null);
+        let currentIndex = 0;
+        let isTransitioning = false; // جلوگیری از کلیک‌های همزمان
+
+        function startQuiz() {
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            isTransitioning = false;
+            const qData = questions[currentIndex];
+            const progressPercent = ((currentIndex) / questions.length) * 100;
+            
+            document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+            document.getElementById('progress-percent').innerText = `${Math.round(progressPercent)}%`;
+            document.getElementById('progress-text').innerText = `سوال ${currentIndex + 1} از ${questions.length}`;
+            document.getElementById('question-text').innerText = `${currentIndex + 1}. ${qData.q}`;
+
+            const optsContainer = document.getElementById('options-container');
+            optsContainer.innerHTML = '';
+            
+            qData.a.forEach((optionText, idx) => {
+                const value = idx; // 0, 1, 2
+                const label = document.createElement('label');
+                label.className = 'option-card';
+                if (answers[currentIndex] === value) label.classList.add('selected');
+
+                const radio = document.createElement('input');
+                radio.type = 'radio'; radio.name = 'q_option'; radio.value = value;
+                radio.checked = (answers[currentIndex] === value);
+                
+                // هندل کردن کلیک (هم برای موبایل و هم دسکتاپ)
+                label.onclick = (e) => {
+                    e.preventDefault();
+                    if (isTransitioning) return; // اگر در حال رفتن به سوال بعد هستیم، کلیک جدید نادیده گرفته شود
+                    
+                    radio.checked = true;
+                    answers[currentIndex] = value;
+                    document.querySelectorAll('.option-card').forEach(l => l.classList.remove('selected'));
+                    label.classList.add('selected');
+                    
+                    document.getElementById('btn-next').disabled = false;
+
+                    // انتقال خودکار به سوال بعدی
+                    if (currentIndex < questions.length - 1) {
+                        isTransitioning = true;
+                        setTimeout(() => nextQuestion(true), 450); 
+                    }
+                };
+
+                const customRadio = document.createElement('div');
+                customRadio.className = 'custom-radio';
+                const span = document.createElement('span');
+                span.className = 'option-text'; span.innerText = optionText;
+
+                label.appendChild(customRadio); label.appendChild(span); optsContainer.appendChild(label);
+            });
+
+            document.getElementById('btn-prev').disabled = (currentIndex === 0);
+            
+            const btnNext = document.getElementById('btn-next');
+            btnNext.disabled = (answers[currentIndex] === null);
+
+            if (currentIndex === questions.length - 1) {
+                btnNext.innerText = "مشاهده نتیجه ✓";
+                btnNext.style.background = "var(--success)";
+                btnNext.style.color = "white";
+            } else {
+                btnNext.innerText = "سوال بعد";
+                btnNext.style.background = "#f1f3f5";
+                btnNext.style.color = "var(--text)";
+            }
+        }
+
+        function nextQuestion(auto = false) {
+            if (!auto && answers[currentIndex] === null) {
+                return; // اگر دستی کلیک شد و جوابی نبود، جلو نرو
+            }
+            if (currentIndex < questions.length - 1) {
+                currentIndex++; 
+                renderQuestion();
+            } else { 
+                finishQuiz(); 
+            }
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) { 
+                currentIndex--; 
+                renderQuestion(); 
+            }
+        }
+
+        function finishQuiz() {
+            if (answers.includes(null)) return alert("لطفاً به تمام سوالات پاسخ دهید.");
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('result-screen').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            const totalScore = answers.reduce((a, b) => a + b, 0);
+            document.getElementById('result-score').innerText = totalScore;
+
+            const box = document.getElementById('recommendation-box');
+            const title = document.getElementById('rec-title');
+            const desc = document.getElementById('rec-desc');
+            box.className = 'recommendation-card';
+
+            if (totalScore <= 5) {
+                box.classList.add('low');
+                title.innerText = "🟢 سطح پایین یا عدم وجود افکار خودکشی";
+                desc.innerHTML = "نمره شما در محدوده طبیعی قرار دارد. با این حال، اگر احساس ناراحتی می‌کنید، صحبت با یک مشاور می‌تواند مفید باشد.";
+            } else if (totalScore <= 19) {
+                box.classList.add('moderate');
+                title.innerText = "🟡 افکار خودکشی متوسط (نیاز به مشاوره)";
+                desc.innerHTML = "توصیه می‌شود در اسرع وقت با یک روانشناس یا روانپزشک مشورت کنید. صحبت با فرد مورد اعتماد نیز می‌تواند کمک‌کننده باشد.";
+            } else {
+                box.classList.add('high');
+                title.innerText = "🔴 افکار خودکشی شدید (مداخله فوری)";
+                desc.innerHTML = "⚠️ لطفاً فوراً با اورژانس اجتماعی <strong>۱۲۳</strong> یا خط ملی پیشگیری از خودکشی <strong>۱۵۷۰</strong> تماس بگیرید. در صورت امکان از یک دوست یا عضو خانواده بخواهید در کنار شما بماند.";
+            }
+
+            sendDataToGoogleSheet(totalScore);
+        }
+
+        function sendDataToGoogleSheet(score) {
+            if (GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_SCRIPT_URL_HERE" || !GOOGLE_SCRIPT_URL) return;
+            const form = document.createElement('form');
+            form.method = 'POST'; form.action = GOOGLE_SCRIPT_URL; form.target = 'hidden_iframe';
+            const scoreInput = document.createElement('input');
+            scoreInput.type = 'hidden'; scoreInput.name = 'score'; scoreInput.value = score;
+            form.appendChild(scoreInput); document.body.appendChild(form); form.submit(); document.body.removeChild(form);
+        }
+    </script>
+    <iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+</body>
+</html>
